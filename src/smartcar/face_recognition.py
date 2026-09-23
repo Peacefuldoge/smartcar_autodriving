@@ -1,107 +1,101 @@
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List, Tuple
+from typing import List, Sequence, Tuple
 
 import cv2
 import numpy as np
 
 
 @dataclass(frozen=True)
-class FacePrediction:
-    label: int
-    person_id: str
-    distance: float
-    recognized: bool
+class FaceDetection:
+    x: int
+    y: int
+    width: int
+    height: int
+
+    @property
+    def area(self) -> int:
+        return self.width * self.height
 
 
-def preprocess_face(image: np.ndarray, size: Tuple[int, int] = (160, 160)) -> np.ndarray:
-    if image is None or image.size == 0:
-        raise ValueError("empty face image")
-    if image.ndim == 3:
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    elif image.ndim == 2:
-        gray = image
-    else:
-        raise ValueError("face image must be grayscale or BGR")
-    gray = cv2.resize(gray, tuple(map(int, size)), interpolation=cv2.INTER_AREA)
-    return cv2.equalizeHist(gray)
+class CascadeFaceDetector:
+    """OpenCV CascadeClassifier wrapper used for delivery face verification.
 
+    A generic frontal-face cascade detects the presence of a face; it does not
+    identify who that face belongs to.  A custom target-specific cascade XML can
+    be supplied when such a model has been trained separately.
+    """
 
-def require_fisherfaces() -> None:
-    has_factory = hasattr(cv2, "face") and (
-        hasattr(cv2.face, "FisherFaceRecognizer_create")
-        or hasattr(cv2.face, "FisherFaceRecognizer")
-    )
-    if not has_factory:
-        raise RuntimeError(
-            "FisherFaces requires OpenCV contrib. Install the ROS/Python-compatible "
-            "opencv-contrib build (the plain opencv-python package does not expose cv2.face)."
+    def __init__(
+        self,
+        cascade_path: str | Path,
+        *,
+        scale_factor: float = 1.1,
+        min_neighbors: int = 5,
+        min_size: Tuple[int, int] = (60, 60),
+    ) -> None:
+        self.cascade_path = str(cascade_path)
+        self.scale_factor = float(scale_factor)
+        self.min_neighbors = int(min_neighbors)
+        self.min_size = (int(min_size[0]), int(min_size[1]))
+        self.classifier = cv2.CascadeClassifier(self.cascade_path)
+        if self.classifier.empty():
+            raise RuntimeError(f"Unable to load OpenCV cascade classifier: {self.cascade_path}")
+
+    def detect(self, image: np.ndarray) -> List[FaceDetection]:
+        if image is None or image.size == 0:
+            raise ValueError("empty image")
+        if image.ndim == 3:
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        elif image.ndim == 2:
+            gray = image
+        else:
+            raise ValueError("image must be grayscale or BGR")
+
+        gray = cv2.equalizeHist(gray)
+        boxes: Sequence[Sequence[int]] = self.classifier.detectMultiScale(
+            gray,
+            scaleFactor=self.scale_factor,
+            minNeighbors=self.min_neighbors,
+            minSize=self.min_size,
         )
+        return [FaceDetection(*(int(v) for v in box)) for box in boxes]
 
 
-def _create_fisherfaces(threshold: float):
-    require_fisherfaces()
-    if hasattr(cv2.face, "FisherFaceRecognizer_create"):
-        return cv2.face.FisherFaceRecognizer_create(0, float(threshold))
-    return cv2.face.FisherFaceRecognizer.create(0, float(threshold))
+def default_frontal_face_cascade() -> str:
+    path = Path(cv2.data.haarcascades) / "haarcascade_frontalface_default.xml"
+    if not path.exists():
+        raise RuntimeError(f"OpenCV default Haar cascade not found: {path}")
+    return str(path)
 
 
-class FisherFacesModel:
-    def __init__(self, *, threshold: float = 3500.0, face_size: Tuple[int, int] = (160, 160)) -> None:
-        require_fisherfaces()
-        self.threshold = float(threshold)
-        self.face_size = tuple(map(int, face_size))
-        self.model = _create_fisherfaces(self.threshold)
-        self.labels: Dict[int, str] = {}
+class ConsecutivePresenceVerifier:
+    """Require a face to be detected in N consecutive frames before accepting."""
 
-    def train(self, images: Iterable[np.ndarray], labels: Iterable[int], label_names: Dict[int, str]) -> None:
-        processed = [preprocess_face(img, self.face_size) for img in images]
-        label_values = np.asarray(list(labels), dtype=np.int32)
-        if len(processed) != len(label_values) or len(processed) < 2:
-            raise ValueError("images and labels must contain the same number of samples")
-        if len(set(label_values.tolist())) < 2:
-            raise ValueError("FisherFaces requires at least two different people/classes")
-        self.model.train(processed, label_values)
-        self.labels = {int(k): str(v) for k, v in label_names.items()}
-
-    def predict(self, face: np.ndarray) -> FacePrediction:
-        label, distance = self.model.predict(preprocess_face(face, self.face_size))
-        label = int(label)
-        person = self.labels.get(label, "") if label >= 0 else ""
-        return FacePrediction(label, person, float(distance), label >= 0 and bool(person))
-
-    def save(self, model_path: Path, labels_path: Path) -> None:
-        model_path = Path(model_path)
-        labels_path = Path(labels_path)
-        model_path.parent.mkdir(parents=True, exist_ok=True)
-        labels_path.parent.mkdir(parents=True, exist_ok=True)
-        self.model.write(str(model_path))
-        labels_path.write_text(json.dumps(self.labels, ensure_ascii=False, indent=2), encoding="utf-8")
-
-    def load(self, model_path: Path, labels_path: Path) -> None:
-        self.model.read(str(model_path))
-        raw = json.loads(Path(labels_path).read_text(encoding="utf-8"))
-        self.labels = {int(k): str(v) for k, v in raw.items()}
-
-
-class ConsecutiveVerifier:
     def __init__(self, required_matches: int = 3) -> None:
         self.required_matches = max(1, int(required_matches))
         self.expected = ""
         self._count = 0
 
-    def set_expected(self, person_id: str) -> None:
-        person_id = str(person_id)
-        if person_id != self.expected:
-            self.expected = person_id
+    def set_expected(self, recipient_id: str) -> None:
+        recipient_id = str(recipient_id).strip()
+        if recipient_id != self.expected:
+            self.expected = recipient_id
             self._count = 0
 
-    def update(self, predicted_person: str) -> bool:
-        if self.expected and predicted_person == self.expected:
+    def reset(self) -> None:
+        self._count = 0
+
+    def update(self, detected: bool) -> bool:
+        if self.expected and bool(detected):
             self._count += 1
         else:
             self._count = 0
         return self._count >= self.required_matches
+
+
+# Backwards-compatible alias used by older tests/imports.  It now expresses
+# consecutive presence rather than FisherFaces identity matches.
+ConsecutiveVerifier = ConsecutivePresenceVerifier

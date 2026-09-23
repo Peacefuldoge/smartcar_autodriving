@@ -61,7 +61,6 @@ $SUDO apt-get install -y --no-install-recommends \
   python3-rosdep \
   python3-pytest \
   python3-opencv \
-  libopencv-contrib-dev \
   python3-serial \
   python3-numpy
 
@@ -96,9 +95,14 @@ print("Python ROS imports: OK")
 print("rospy:", rospy.__file__)
 print("cv_bridge:", cv_bridge.__file__)
 print("pyserial:", serial.__version__)
-if not hasattr(cv2, "face"):
-    raise SystemExit("OpenCV was installed without cv2.face; FisherFaces is unavailable")
-print("OpenCV FisherFaces: OK")
+if not hasattr(cv2, "CascadeClassifier"):
+    raise SystemExit("OpenCV CascadeClassifier is unavailable")
+from pathlib import Path
+cascade = Path(cv2.data.haarcascades) / "haarcascade_frontalface_default.xml"
+model = cv2.CascadeClassifier(str(cascade))
+if not cascade.exists() or model.empty():
+    raise SystemExit(f"OpenCV Haar cascade unavailable: {cascade}")
+print("OpenCV CascadeClassifier: OK")
 PY
 
 printf '\nROS 1 Noetic is installed. Open a new shell or run:\n'

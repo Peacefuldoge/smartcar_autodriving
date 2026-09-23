@@ -22,7 +22,7 @@ The installer:
 4. Installs ROS Noetic `ros-base` plus the ROS packages needed by this repository.
 5. Initializes `rosdep`.
 6. Adds `/opt/ros/noetic/setup.bash` to `~/.bashrc`.
-7. Verifies `roscore`, `roslaunch`, `catkin_make`, `rostest`, `rospy`, `cv_bridge`, `pyserial`, and OpenCV `cv2.face`/FisherFaces support.
+7. Verifies `roscore`, `roslaunch`, `catkin_make`, `rostest`, `rospy`, `cv_bridge`, `pyserial`, and OpenCV CascadeClassifier and default Haar-cascade support.
 
 ## Build and integration test
 

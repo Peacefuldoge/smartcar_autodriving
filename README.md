@@ -38,7 +38,7 @@ Camera (/dev/video2)
 ├── launch/                     # ROS1 launch 文件
 ├── msg/                        # ROS1 自定义消息
 ├── ros_nodes/                  # ROS1 节点
-├── scripts/                    # 数据检查 / HSV / FisherFaces / ROS 验证工具
+├── scripts/                    # 数据检查 / HSV / 级联分类器检查 / ROS 验证工具
 ├── src/smartcar/
 │   ├── autonomous.py           # 自动驾驶主循环
 │   ├── behavior.py             # 高层状态与赛道行为
@@ -52,7 +52,7 @@ Camera (/dev/video2)
 │   ├── battery.py              # 电压解析、SOC 与低电量滞回
 │   ├── fleet.py / mission.py   # 三车调度与配送任务状态机
 │   ├── udp_protocol.py         # UDP JSON/HMAC 协议
-│   └── face_recognition.py     # FisherFaces 训练/推理封装
+│   └── face_recognition.py     # OpenCV CascadeClassifier 人脸检测封装
 └── tests/                      # 不依赖车辆硬件的逻辑测试
 ```
 
@@ -103,7 +103,7 @@ smartcar collect \
 pytest
 ```
 
-测试覆盖历史舵机/行为逻辑，以及 GPS/NMEA、电池电压与低电量滞回、UDP 协议、三车调度、配送任务状态机、GPS 导航计算和 FisherFaces 前处理。
+测试覆盖历史舵机/行为逻辑，以及 GPS/NMEA、电池电压与低电量滞回、UDP 协议、三车调度、配送任务状态机、GPS 导航计算和 CascadeClassifier 人脸检测/连续帧确认。
 
 ## 对历史代码的关键修正
 
@@ -236,7 +236,7 @@ rostest smartcar_autonomous_driving behavior_ros.test
 当前整理环境的实际验证记录见 [`docs/validation.md`](docs/validation.md)。
 
 
-## 配送系统扩展：GPS、电池、UDP、多车协同与收货人人脸识别
+## 配送系统扩展：GPS、电池、UDP、多车协同与收货现场人脸检测确认
 
 当前版本进一步扩展为三车配送架构：
 
@@ -246,7 +246,7 @@ rostest smartcar_autonomous_driving behavior_ros.test
 - `udp_vehicle_bridge_node.py` 将车辆 GPS、电量、任务状态统一通过 UDP JSON 发往主机，并接收主机配送任务；
 - `host_tools/fleet_coordinator.py` 管理 `car_1/car_2/car_3`，只调度在线、空闲且电量足够的车辆；多个空闲车辆中优先选择距取货点最近的一辆；
 - UDP 任务分配带 `task_id` 幂等、ACK 和超时重发，避免一次丢包造成主机/车辆状态永久不一致；
-- `face_recognition_node.py` 使用 OpenCV FisherFaces + Haar frontal-face detection，在到达送货点后验证任务指定收货人，连续多帧匹配后才完成任务。
+- `face_recognition_node.py` 使用 OpenCV `CascadeClassifier` + Haar frontal-face detection；默认模式只做“连续多帧检测到人脸”的交付确认，不声称识别具体身份。若配置收货人专用 XML 级联模型，则可切换为 `recipient_cascade` 模式。
 
 车辆端扩展后的主要链路：
 
@@ -258,7 +258,7 @@ UDP task ─> udp_vehicle_bridge ──────┤
                               mission_manager_node
                                │             │
                                ↓             ↓
-                        gps_navigation   FisherFaces
+                        gps_navigation   CascadeClassifier
                                │             │
                                └──────┬──────┘
                                       ↓
@@ -271,7 +271,7 @@ car_2 ─┼── UDP ──> fleet_coordinator (host) ──> delivery task as
 car_3 ─┘
 ```
 
-详细设计见 [`docs/logistics_architecture.md`](docs/logistics_architecture.md)、[`docs/udp_protocol.md`](docs/udp_protocol.md) 和 [`docs/fisherfaces.md`](docs/fisherfaces.md)。 下位机电压采集与分压校准见 [`docs/battery_telemetry.md`](docs/battery_telemetry.md)。
+详细设计见 [`docs/logistics_architecture.md`](docs/logistics_architecture.md)、[`docs/udp_protocol.md`](docs/udp_protocol.md) 和 [`docs/cascade_face_verification.md`](docs/cascade_face_verification.md)。 下位机电压采集与分压校准见 [`docs/battery_telemetry.md`](docs/battery_telemetry.md)。
 
 ### 运行三车调度主机
 

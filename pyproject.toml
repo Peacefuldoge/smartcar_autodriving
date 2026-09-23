@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "smartcar-autonomous-driving"
-version = "0.3.0"
-description = "ROS1 autonomous smart-car with GPS/battery telemetry, UDP fleet coordination, delivery missions and FisherFaces recipient verification."
+version = "0.3.1"
+description = "ROS1 autonomous smart-car with GPS/battery telemetry, UDP fleet coordination, delivery missions and CascadeClassifier face verification."
 readme = "README.md"
 requires-python = ">=3.7"
 dependencies = [
   "numpy",
-  "opencv-contrib-python",
+  "opencv-python",
   "Pillow",
 ]
 

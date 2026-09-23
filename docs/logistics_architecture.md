@@ -50,6 +50,6 @@ Tasks are ordered by priority then FIFO time. Among currently idle/healthy vehic
 
 ## Recipient verification
 
-At the drop-off location the mission state changes to `VERIFY_RECIPIENT`. The FisherFaces node then becomes active and compares detected faces with the expected `recipient_id`. A task is completed only after the configured number of consecutive matching frames.
+At the drop-off location the mission state changes to `VERIFY_RECIPIENT`. In the default `presence` mode the CascadeClassifier node checks only that a frontal face remains visible for the configured number of consecutive frames. It does not identify the recipient. If a target-specific XML cascade is configured for the task `recipient_id`, `recipient_cascade` mode can instead use that classifier.
 
-FisherFaces is intentionally kept because it was requested for this project, but it is a classical method and is sensitive to pose/illumination. It should be treated as a project/demo identity check rather than a high-security biometric system.
+CascadeClassifier is a classical detector and is sensitive to pose, illumination and camera conditions. The bundled generic frontal-face cascade is a presence gate only. Target-specific cascades, if separately trained, should still be treated as a project/demo classifier rather than high-security biometric authentication.

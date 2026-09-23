@@ -2,7 +2,7 @@
 <package format="2">
   <name>smartcar_autonomous_driving</name>
   <version>0.3.0</version>
-  <description>ROS1 integration for the autonomous smart-car project: camera, lane following, object detection, GPS/battery telemetry, UDP fleet coordination, delivery missions, FisherFaces recipient verification and vehicle I/O.</description>
+  <description>ROS1 integration for the autonomous smart-car project: camera, lane following, object detection, GPS/battery telemetry, UDP fleet coordination, delivery missions, CascadeClassifier face-presence / recipient-cascade verification and vehicle I/O.</description>
 
   <maintainer email="maintainer@example.com">Smartcar Project Maintainer</maintainer>
   <license>Proprietary</license>

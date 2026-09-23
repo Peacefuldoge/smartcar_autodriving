@@ -49,7 +49,7 @@ catkin_install_python(PROGRAMS
   ros_nodes/mission_manager_node.py
   ros_nodes/face_recognition_node.py
   ros_nodes/udp_vehicle_bridge_node.py
-  scripts/train_fisherfaces.py
+  scripts/check_face_cascade.py
   host_tools/fleet_coordinator.py
   host_tools/submit_task.py
   test/rostest_behavior.py

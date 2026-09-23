@@ -2,7 +2,7 @@
 
 ## Validation completed in this environment
 
-After adding GPS, RS-232 battery telemetry, UDP host communication, three-vehicle scheduling, return-home mission control and FisherFaces integration, the following checks were executed successfully:
+After adding GPS, RS-232 battery telemetry, UDP host communication, three-vehicle scheduling, return-home mission control and CascadeClassifier integration, the following checks were executed successfully:
 
 ```bash
 python3 -m compileall -q src ros_nodes host_tools test tests scripts
@@ -23,7 +23,7 @@ The tests include:
 - delivery mission transitions: pickup -> dropoff -> recipient verification -> complete;
 - low-battery task abort -> return-home -> recovered/idle;
 - GPS distance, bearing and arrival behavior;
-- FisherFaces image preprocessing and consecutive-recipient verification logic;
+- CascadeClassifier loading, blank-frame detection behavior and consecutive face-presence verification logic;
 - ROS package / launch / rostest XML structure.
 
 Bash syntax is checked for all `scripts/*.sh`, and all package/launch/test XML files are parsed. `CMakeLists.txt` is also configured against a lightweight mock catkin/rostest CMake package to catch CMake syntax and install-path errors. The updated Arduino-style motor-controller firmware is compiled with a small Arduino API stub using `g++ -fsyntax-only`, which checks the added battery-telemetry C++ syntax without pretending that the target board/toolchain is present.
@@ -49,6 +49,6 @@ bash scripts/build_and_test_ros1.sh
 
 That script performs `rosdep install`, `catkin_make`, the pure-Python test suite, `behavior_ros.test`, and `logistics_ros.test`.
 
-## FisherFaces runtime limitation in this container
+## CascadeClassifier runtime verification
 
-The installed OpenCV here is the non-contrib Python build (`cv2.face` is absent), so the actual OpenCV FisherFaceRecognizer cannot be executed in this container. The project detects this explicitly. On the target Noetic system the installer requests Ubuntu's OpenCV contrib libraries and verifies that `cv2.face` is present before declaring the installation successful.
+The installed OpenCV build exposes `cv2.CascadeClassifier` and the bundled `haarcascade_frontalface_default.xml`; both are exercised by the unit tests in this repository. `cv2.face` is no longer required. The default delivery gate is face-presence verification only, not biometric identity recognition.

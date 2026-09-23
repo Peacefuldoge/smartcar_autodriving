@@ -92,11 +92,12 @@ udp:
   shared_secret: ""
 
 face_recognition:
-  model_path: models/fisherfaces.yml
-  labels_path: models/fisherfaces_labels.json
-  threshold: 3500.0
-  face_size: [160, 160]
+  # presence: generic frontal-face detection only (NOT identity recognition)
+  # recipient_cascade: use recipient-specific XML cascades from the map below
+  mode: presence
+  cascade_path: ""
   required_matches: 3
   scale_factor: 1.1
   min_neighbors: 5
   min_face_size: [60, 60]
+  recipient_cascades: {}
