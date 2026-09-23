@@ -1,0 +1,9 @@
+std_msgs/Header header
+string vehicle_id
+string state
+string task_id
+float64 latitude
+float64 longitude
+float32 battery_voltage
+float32 battery_percentage
+bool battery_low

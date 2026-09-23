@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>smartcar_autonomous_driving</name>
-  <version>0.2.0</version>
-  <description>ROS1 integration for the autonomous smart-car project: camera, lane following, object detection, behavior control, teleoperation and vehicle I/O.</description>
+  <version>0.3.0</version>
+  <description>ROS1 integration for the autonomous smart-car project: camera, lane following, object detection, GPS/battery telemetry, UDP fleet coordination, delivery missions, FisherFaces recipient verification and vehicle I/O.</description>
 
   <maintainer email="maintainer@example.com">Smartcar Project Maintainer</maintainer>
   <license>Proprietary</license>
@@ -20,6 +20,8 @@
 
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>joy</exec_depend>
+  <exec_depend>python3-serial</exec_depend>
+  <exec_depend>python3-opencv</exec_depend>
 
   <test_depend>rostest</test_depend>
   <test_depend>python3-pytest</test_depend>

@@ -74,22 +74,34 @@ class CommandMuxCore:
         self.mode = mode
         self._autonomous = _StampedCommand()
         self._manual = _StampedCommand()
+        self._mission = _StampedCommand()
+        self._mission_active = False
 
     def set_mode(self, mode: str) -> None:
         if mode not in self.VALID_MODES:
             raise ValueError(f"Unsupported control mode: {mode}")
         self.mode = mode
 
+    def set_mission_active(self, active: bool) -> None:
+        self._mission_active = bool(active)
+
     def update(self, source: str, command: DriveCommand, now: float) -> None:
         if source == "autonomous":
             self._autonomous = _StampedCommand(command, now)
         elif source == "manual":
             self._manual = _StampedCommand(command, now)
+        elif source == "mission":
+            self._mission = _StampedCommand(command, now)
         else:
             raise ValueError(f"Unknown command source: {source}")
 
     def select(self, now: float) -> DriveCommand:
-        selected = self._autonomous if self.mode == "autonomous" else self._manual
+        if self.mode == "manual":
+            selected = self._manual
+        elif self._mission_active:
+            selected = self._mission
+        else:
+            selected = self._autonomous
         if selected.command is None or now - selected.stamp > self.timeout:
             return DriveCommand(self.neutral, self.neutral)
         return selected.command

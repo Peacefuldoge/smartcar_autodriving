@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-python3 -m compileall -q src ros_nodes test tests scripts
+python3 -m compileall -q src ros_nodes host_tools test tests scripts
 PYTHONPATH="$ROOT/src${PYTHONPATH:+:$PYTHONPATH}" python3 -m pytest -q
 
 if ! command -v rospack >/dev/null 2>&1; then
@@ -14,3 +14,4 @@ fi
 
 rospack find smartcar_autonomous_driving >/dev/null
 rostest smartcar_autonomous_driving behavior_ros.test
+rostest smartcar_autonomous_driving logistics_ros.test

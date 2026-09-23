@@ -1,0 +1,49 @@
+<launch>
+  <arg name="config" default="$(find smartcar_autonomous_driving)/config/ros1.yaml"/>
+  <arg name="vehicle_id" default="car_1"/>
+  <arg name="udp_port" default="52001"/>
+  <arg name="dry_run" default="true"/>
+  <arg name="mock_gps" default="false"/>
+  <arg name="mock_battery" default="false"/>
+  <arg name="mock_battery_voltage" default="12.2"/>
+  <arg name="enable_detector" default="true"/>
+  <arg name="enable_face" default="false"/>
+
+  <rosparam command="load" file="$(arg config)" ns="smartcar"/>
+  <param name="/smartcar/mission/vehicle_id" value="$(arg vehicle_id)"/>
+
+  <group ns="smartcar">
+    <node pkg="smartcar_autonomous_driving" type="camera_node.py" name="camera" output="screen"/>
+    <node pkg="smartcar_autonomous_driving" type="lane_following_node.py" name="lane_following" output="screen"/>
+    <node if="$(arg enable_detector)" pkg="smartcar_autonomous_driving" type="object_detection_node.py"
+          name="object_detection" output="screen"/>
+    <node pkg="smartcar_autonomous_driving" type="behavior_node.py" name="behavior" output="screen"/>
+
+    <node pkg="smartcar_autonomous_driving" type="gps_node.py" name="gps" output="screen">
+      <param name="mock" value="$(arg mock_gps)"/>
+    </node>
+    <node unless="$(arg mock_battery)" pkg="smartcar_autonomous_driving" type="battery_node.py" name="battery" output="screen"/>
+    <node if="$(arg mock_battery)" pkg="smartcar_autonomous_driving" type="battery_node.py" name="battery_mock" output="screen">
+      <param name="mock_voltage" value="$(arg mock_battery_voltage)"/>
+    </node>
+    <node pkg="smartcar_autonomous_driving" type="mission_manager_node.py" name="mission_manager" output="screen">
+      <param name="vehicle_id" value="$(arg vehicle_id)"/>
+    </node>
+    <node pkg="smartcar_autonomous_driving" type="gps_navigation_node.py" name="gps_navigation" output="screen"/>
+    <node if="$(arg enable_face)" pkg="smartcar_autonomous_driving" type="face_recognition_node.py"
+          name="face_recognition" output="screen"/>
+    <node pkg="smartcar_autonomous_driving" type="udp_vehicle_bridge_node.py" name="udp_vehicle_bridge" output="screen">
+      <param name="vehicle_id" value="$(arg vehicle_id)"/>
+      <param name="local_port" value="$(arg udp_port)"/>
+    </node>
+
+    <node pkg="smartcar_autonomous_driving" type="command_mux_node.py" name="command_mux" output="screen">
+      <param name="default_mode" value="autonomous"/>
+      <param name="command_timeout" value="0.3"/>
+    </node>
+    <node pkg="smartcar_autonomous_driving" type="vehicle_driver_node.py" name="vehicle_driver" output="screen">
+      <param name="dry_run" value="$(arg dry_run)"/>
+      <param name="watchdog_timeout" value="0.3"/>
+    </node>
+  </group>
+</launch>

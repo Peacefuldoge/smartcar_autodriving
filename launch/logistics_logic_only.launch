@@ -1,0 +1,29 @@
+<launch>
+  <arg name="config" default="$(find smartcar_autonomous_driving)/config/ros1.yaml"/>
+  <arg name="vehicle_id" default="car_1"/>
+  <arg name="udp_port" default="52001"/>
+  <arg name="mock_latitude" default="3.1390"/>
+  <arg name="mock_longitude" default="101.6869"/>
+  <arg name="mock_battery_voltage" default="12.2"/>
+
+  <rosparam command="load" file="$(arg config)" ns="smartcar"/>
+  <param name="/smartcar/mission/vehicle_id" value="$(arg vehicle_id)"/>
+
+  <group ns="smartcar">
+    <node pkg="smartcar_autonomous_driving" type="gps_node.py" name="gps" output="screen">
+      <param name="mock" value="true"/>
+      <param name="mock_latitude" value="$(arg mock_latitude)"/>
+      <param name="mock_longitude" value="$(arg mock_longitude)"/>
+    </node>
+    <node pkg="smartcar_autonomous_driving" type="battery_node.py" name="battery" output="screen">
+      <param name="mock_voltage" value="$(arg mock_battery_voltage)"/>
+    </node>
+    <node pkg="smartcar_autonomous_driving" type="mission_manager_node.py" name="mission_manager" output="screen">
+      <param name="vehicle_id" value="$(arg vehicle_id)"/>
+    </node>
+    <node pkg="smartcar_autonomous_driving" type="udp_vehicle_bridge_node.py" name="udp_vehicle_bridge" output="screen">
+      <param name="vehicle_id" value="$(arg vehicle_id)"/>
+      <param name="local_port" value="$(arg udp_port)"/>
+    </node>
+  </group>
+</launch>

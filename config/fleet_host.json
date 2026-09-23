@@ -1,0 +1,10 @@
+{
+  "bind_ip": "0.0.0.0",
+  "port": 51000,
+  "vehicle_ids": ["car_1", "car_2", "car_3"],
+  "heartbeat_timeout": 3.0,
+  "min_dispatch_battery": 0.25,
+  "ack_timeout": 0.5,
+  "max_retries": 5,
+  "shared_secret": ""
+}

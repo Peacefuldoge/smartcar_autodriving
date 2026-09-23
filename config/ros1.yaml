@@ -44,3 +44,59 @@ behavior:
   cooldown_seconds: 5.0
   left_bias: 12
   left_bias_seconds: 2.0
+
+gps:
+  serial_device: /dev/ttyUSB1
+  baudrate: 9600
+  timeout: 0.1
+  poll_rate: 20.0
+  frame_id: gps
+  verify_checksum: true
+
+battery:
+  # RS-232/USB-serial line examples accepted: VOLTAGE:12.1, V=12.1, 12.1V
+  serial_device: /dev/ttyUSB2
+  baudrate: 9600
+  timeout: 0.1
+  poll_rate: 10.0
+  publish_rate: 2.0
+  empty_voltage: 10.0
+  low_voltage: 10.8
+  recovery_voltage: 11.2
+  full_voltage: 12.6
+
+navigation:
+  mission_speed: 1560
+  arrival_radius_m: 3.0
+  bearing_gain: 3.0
+  steering_direction: 1.0
+  heading_min_move_m: 0.8
+  fix_timeout: 2.0
+  control_rate: 10.0
+
+mission:
+  vehicle_id: car_1
+  capture_start_as_home: true
+  # Optional fixed home. If omitted, first valid GPS fix becomes the start/home point.
+  # home_latitude: 3.1390
+  # home_longitude: 101.6869
+  # home_altitude: 0.0
+
+udp:
+  host_ip: 127.0.0.1
+  host_port: 51000
+  bind_ip: 0.0.0.0
+  local_port: 52001
+  heartbeat_rate: 2.0
+  # Set the same secret on host and all cars in real deployments.
+  shared_secret: ""
+
+face_recognition:
+  model_path: models/fisherfaces.yml
+  labels_path: models/fisherfaces_labels.json
+  threshold: 3500.0
+  face_size: [160, 160]
+  required_matches: 3
+  scale_factor: 1.1
+  min_neighbors: 5
+  min_face_size: [60, 60]

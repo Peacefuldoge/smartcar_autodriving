@@ -5,7 +5,7 @@ import time
 import threading
 
 import rospy
-from std_msgs.msg import String
+from std_msgs.msg import Bool, String
 
 from smartcar.hardware import DriveCommand
 from smartcar.ros1_runtime import CommandMuxCore
@@ -24,6 +24,8 @@ class CommandMuxNode:
         self._publisher = rospy.Publisher("cmd_drive", DriveCommandMsg, queue_size=1)
         rospy.Subscriber("cmd_drive/autonomous", DriveCommandMsg, self._on_auto, queue_size=1)
         rospy.Subscriber("cmd_drive/manual", DriveCommandMsg, self._on_manual, queue_size=1)
+        rospy.Subscriber("cmd_drive/mission", DriveCommandMsg, self._on_mission, queue_size=1)
+        rospy.Subscriber("mission/active", Bool, self._on_mission_active, queue_size=1)
         rospy.Subscriber("control_mode", String, self._on_mode, queue_size=1)
         rate = float(rospy.get_param("~publish_rate", 30.0))
         self._timer = rospy.Timer(rospy.Duration(1.0 / rate), self._on_timer)
@@ -37,6 +39,13 @@ class CommandMuxNode:
 
     def _on_manual(self, msg: DriveCommandMsg) -> None:
         self._update("manual", msg)
+
+    def _on_mission(self, msg: DriveCommandMsg) -> None:
+        self._update("mission", msg)
+
+    def _on_mission_active(self, msg: Bool) -> None:
+        with self._lock:
+            self._core.set_mission_active(bool(msg.data))
 
     def _on_mode(self, msg: String) -> None:
         try:

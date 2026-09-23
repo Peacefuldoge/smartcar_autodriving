@@ -1,0 +1,10 @@
+<launch>
+  <rosparam command="load" file="$(find smartcar_autonomous_driving)/config/ros1.yaml" ns="smartcar"/>
+  <node pkg="smartcar_autonomous_driving" type="mission_manager_node.py" name="mission_manager" ns="smartcar" output="screen">
+    <param name="vehicle_id" value="car_test"/>
+  </node>
+  <test test-name="logistics_ros_test"
+        pkg="smartcar_autonomous_driving"
+        type="rostest_logistics.py"
+        time-limit="20"/>
+</launch>

@@ -34,3 +34,17 @@ def test_joystick_mapping_matches_historical_direction():
     assert steering_from_joy_axis(0.0) == 1500
     assert steering_from_joy_axis(1.0) == 750
     assert steering_from_joy_axis(-1.0) == 2250
+
+
+def test_mission_command_overrides_autonomous_but_manual_still_has_priority():
+    mux = CommandMuxCore(neutral=1500, timeout=0.5)
+    auto = DriveCommand(1600, 1400)
+    mission = DriveCommand(1560, 1700)
+    manual = DriveCommand(1550, 1300)
+    mux.update('autonomous', auto, now=1.0)
+    mux.update('mission', mission, now=1.0)
+    mux.update('manual', manual, now=1.0)
+    mux.set_mission_active(True)
+    assert mux.select(1.1) == mission
+    mux.set_mode('manual')
+    assert mux.select(1.1) == manual

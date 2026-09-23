@@ -4,21 +4,26 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "smartcar-autonomous-driving"
-version = "0.2.0"
-description = "ROS1-enabled autonomous smart-car project with lane following, object detection, behavior control, teleoperation and vehicle I/O."
+version = "0.3.0"
+description = "ROS1 autonomous smart-car with GPS/battery telemetry, UDP fleet coordination, delivery missions and FisherFaces recipient verification."
 readme = "README.md"
 requires-python = ">=3.7"
 dependencies = [
   "numpy",
-  "opencv-python",
+  "opencv-contrib-python",
   "Pillow",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0"]
+hardware = ["pyserial>=3.5"]
 
 [project.scripts]
 smartcar = "smartcar.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+

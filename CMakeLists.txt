@@ -16,6 +16,11 @@ add_message_files(
   Detection.msg
   DetectionArray.msg
   DriveCommand.msg
+  GeoPoint.msg
+  DeliveryTask.msg
+  NavigationGoal.msg
+  FaceRecognition.msg
+  VehicleStatus.msg
 )
 
 generate_messages(
@@ -38,7 +43,17 @@ catkin_install_python(PROGRAMS
   ros_nodes/vehicle_driver_node.py
   ros_nodes/joy_teleop_node.py
   ros_nodes/data_recorder_node.py
+  ros_nodes/gps_node.py
+  ros_nodes/battery_node.py
+  ros_nodes/gps_navigation_node.py
+  ros_nodes/mission_manager_node.py
+  ros_nodes/face_recognition_node.py
+  ros_nodes/udp_vehicle_bridge_node.py
+  scripts/train_fisherfaces.py
+  host_tools/fleet_coordinator.py
+  host_tools/submit_task.py
   test/rostest_behavior.py
+  test/rostest_logistics.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
@@ -49,4 +64,5 @@ install(DIRECTORY launch config
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
   add_rostest(test/behavior_ros.test)
+  add_rostest(test/logistics_ros.test)
 endif()

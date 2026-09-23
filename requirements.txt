@@ -1,5 +1,5 @@
 numpy
-opencv-python
+opencv-contrib-python
 Pillow
 
 # Hardware-specific runtime dependencies are intentionally not pinned here:
@@ -7,3 +7,6 @@ Pillow
 # - Paddle Lite Python API (`paddlelite`)
 # - Paddle Mobile Python API (`paddlemobile`)
 # Install the versions supplied for your embedded board / accelerator SDK.
+
+# New logistics/telemetry runtime dependency
+pyserial

@@ -5,11 +5,23 @@
 
 const int MOTOR_PINS[6] = {22, 23, 24, 25, 4, 5};
 const int COMMAND_BAUD = 38400;
-const int DEBUG_BAUD = 115200;
+const int BATTERY_TELEMETRY_BAUD = 9600;
 const int NEUTRAL = 1500;
 const int MIN_THROTTLE = 1400;
 const int MAX_THROTTLE = 1600;
 const unsigned long COMMAND_TIMEOUT_MS = 300;
+
+// Battery telemetry is intentionally placed on Serial2 so the historical
+// vehicle command channel on Serial3 remains untouched. Connect Serial2 to a
+// second USB-serial/RS-232 interface (use a proper level shifter for true
+// RS-232 voltage levels).
+const int BATTERY_ADC_PIN = A0;
+const float ADC_REFERENCE_V = 5.0f;
+const float ADC_MAX_COUNT = 1023.0f;
+// Example for a 3:1 divider (e.g. 20k over 10k). CALIBRATE THIS on your car.
+const float BATTERY_DIVIDER_RATIO = 3.0f;
+const unsigned long BATTERY_TELEMETRY_PERIOD_MS = 500;
+const int BATTERY_AVERAGE_SAMPLES = 8;
 
 // The original firmware reconstructed 16-bit fields with a base of 255 rather
 // than the conventional 256. Keep this value for compatibility with the
@@ -20,9 +32,12 @@ unsigned char recv_buffer[7] = {0};
 unsigned char byte_in = 0;
 int recv_count = 0;
 unsigned long last_command_ms = 0;
+unsigned long last_battery_telemetry_ms = 0;
 
 void setMotorMode(int mode);
 void setMotorSpeed(int left, int right);
+float readBatteryVoltage();
+void publishBatteryVoltage();
 
 void setup() {
   for (int i = 0; i < 6; ++i) {
@@ -31,10 +46,15 @@ void setup() {
   }
   setMotorMode(FORWARD);
   Serial3.begin(COMMAND_BAUD);
-  Serial2.begin(DEBUG_BAUD);
+  Serial2.begin(BATTERY_TELEMETRY_BAUD);
+  pinMode(BATTERY_ADC_PIN, INPUT);
 }
 
 void loop() {
+  if (millis() - last_battery_telemetry_ms >= BATTERY_TELEMETRY_PERIOD_MS) {
+    last_battery_telemetry_ms = millis();
+    publishBatteryVoltage();
+  }
   if (millis() - last_command_ms > COMMAND_TIMEOUT_MS) {
     setMotorSpeed(0, 0);
   }
@@ -75,6 +95,22 @@ void loop() {
       throttle_delta + steering_delta * 0.2
     );
   }
+}
+
+float readBatteryVoltage() {
+  unsigned long total = 0;
+  for (int i = 0; i < BATTERY_AVERAGE_SAMPLES; ++i) {
+    total += analogRead(BATTERY_ADC_PIN);
+  }
+  const float raw = (float)total / (float)BATTERY_AVERAGE_SAMPLES;
+  const float adc_voltage = raw * ADC_REFERENCE_V / ADC_MAX_COUNT;
+  return adc_voltage * BATTERY_DIVIDER_RATIO;
+}
+
+void publishBatteryVoltage() {
+  const float voltage = readBatteryVoltage();
+  Serial2.print("VOLTAGE:");
+  Serial2.println(voltage, 2);
 }
 
 void setMotorSpeed(int left, int right) {

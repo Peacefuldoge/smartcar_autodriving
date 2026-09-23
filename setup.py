@@ -12,7 +12,7 @@ except ImportError:
     # Keeps ordinary Python tooling usable outside a ROS installation.
     setup_args = {
         "name": "smartcar-autonomous-driving",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "packages": find_packages("src"),
         "package_dir": {"": "src"},
     }
