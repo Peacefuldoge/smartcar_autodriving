@@ -1,4 +1,4 @@
-# ROS1 Multi-Vehicle Autonomous Delivery System
+# ROS Multi-Vehicle Autonomous Delivery System
 
 基于 **ROS** 的智能车，由原本科智能车项目整理而来，集成视觉感知、GPS 导航、电池管理、UDP 通信、多车任务调度及人脸检测功能。
 
