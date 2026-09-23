@@ -5,7 +5,7 @@
 ## Features
 
 * **Lane Following**：基于 OpenCV + 深度学习模型进行车道检测与转向控制
-* **Object Detection**：识别赛道标志并执行停车、限速、超车等行为
+* **Object Detection**：识别道路交通标志并执行停车、限速、超车等行为
 * **GPS Navigation**：解析 NMEA GPS 数据，提供车辆位置与任务目标导航
 * **Battery Monitoring**：通过 RS-232 接收下位机电池电压
 * **Low-Battery Return**：低电量时停止接单并自动返回起点
