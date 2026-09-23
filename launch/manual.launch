@@ -1,0 +1,43 @@
+<launch>
+  <arg name="config" default="$(find smartcar_autonomous_driving)/config/ros1.yaml"/>
+  <arg name="dry_run" default="true"/>
+  <arg name="joy_device" default="/dev/input/js0"/>
+  <arg name="enable_camera" default="true"/>
+  <arg name="enable_recorder" default="true"/>
+  <arg name="record_on_start" default="false"/>
+  <arg name="record_output" default="data/ros_manual_run"/>
+
+  <rosparam command="load" file="$(arg config)" ns="smartcar"/>
+
+  <group ns="smartcar">
+    <node if="$(arg enable_camera)" pkg="smartcar_autonomous_driving" type="camera_node.py"
+          name="camera" output="screen"/>
+
+    <node pkg="joy" type="joy_node" name="joy" output="screen">
+      <param name="dev" value="$(arg joy_device)"/>
+      <param name="deadzone" value="0.05"/>
+      <param name="autorepeat_rate" value="20.0"/>
+    </node>
+
+    <node pkg="smartcar_autonomous_driving" type="joy_teleop_node.py" name="joy_teleop" output="screen">
+      <param name="steering_axis" value="0"/>
+      <param name="deadman_button" value="-1"/>
+    </node>
+
+    <node pkg="smartcar_autonomous_driving" type="command_mux_node.py" name="command_mux" output="screen">
+      <param name="default_mode" value="manual"/>
+      <param name="command_timeout" value="0.3"/>
+    </node>
+
+    <node pkg="smartcar_autonomous_driving" type="vehicle_driver_node.py" name="vehicle_driver" output="screen">
+      <param name="dry_run" type="bool" value="$(arg dry_run)"/>
+      <param name="watchdog_timeout" value="0.3"/>
+    </node>
+
+    <node if="$(arg enable_recorder)" pkg="smartcar_autonomous_driving" type="data_recorder_node.py"
+          name="data_recorder" output="screen">
+      <param name="record_on_start" type="bool" value="$(arg record_on_start)"/>
+      <param name="output_dir" value="$(arg record_output)"/>
+    </node>
+  </group>
+</launch>

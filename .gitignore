@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Runtime data / outputs
+data/*
+!data/.gitkeep
+models/*
+!models/.gitkeep
+lib/*
+!lib/.gitkeep
+*.npy
+*.jpg
+*.jpeg
+*.png
+*.log
+
+# Local configuration
+config/local.json
+
+# ROS / catkin workspace outputs
+build/
+devel/
+install/
+.catkin_tools/
+.ros/

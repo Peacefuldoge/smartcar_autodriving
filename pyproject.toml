@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smartcar-autonomous-driving"
+version = "0.2.0"
+description = "ROS1-enabled autonomous smart-car project with lane following, object detection, behavior control, teleoperation and vehicle I/O."
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+  "numpy",
+  "opencv-python",
+  "Pillow",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+smartcar = "smartcar.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

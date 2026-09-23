@@ -1,0 +1,50 @@
+{
+  "camera": {
+    "device": "/dev/video2",
+    "width": 424,
+    "height": 240,
+    "fourcc": "MJPG"
+  },
+  "vehicle": {
+    "serial_device": "/dev/ttyUSB0",
+    "baudrate": 38400,
+    "neutral": 1500,
+    "cruise_speed": 1600,
+    "limited_speed": 1530,
+    "slow_speed": 1560,
+    "turn_speed": 1538,
+    "steering_min": 500,
+    "steering_max": 2450
+  },
+  "lane_model": {
+    "path": "models/lane/model_infer",
+    "input_size": 128,
+    "hsv_lower": [25, 75, 190],
+    "hsv_upper": [40, 255, 255],
+    "legacy_memory_layout": true
+  },
+  "detector": {
+    "path": "models/detector/freeze_model",
+    "labels": "config/labels.example.txt",
+    "input_size": 256,
+    "score_threshold": 0.35
+  },
+  "behavior": {
+    "confirmation_frames": {
+      "overtake": 3,
+      "stop_line": 5,
+      "speed_limit": 16,
+      "speed_limit_end": 20,
+      "left_turn": 17,
+      "cone_right": 9,
+      "cone_left": 9,
+      "cone_right_mid": 9,
+      "cone_left_mid": 9,
+      "zebra_crossing": 5,
+      "parking_stop": 9
+    },
+    "cooldown_seconds": 5.0,
+    "left_bias": 12,
+    "left_bias_seconds": 2.0
+  }
+}

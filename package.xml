@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>smartcar_autonomous_driving</name>
+  <version>0.2.0</version>
+  <description>ROS1 integration for the autonomous smart-car project: camera, lane following, object detection, behavior control, teleoperation and vehicle I/O.</description>
+
+  <maintainer email="maintainer@example.com">Smartcar Project Maintainer</maintainer>
+  <license>Proprietary</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>message_generation</build_depend>
+
+  <depend>rospy</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>cv_bridge</depend>
+  <depend>message_filters</depend>
+  <depend>rospkg</depend>
+  <depend>std_srvs</depend>
+
+  <exec_depend>message_runtime</exec_depend>
+  <exec_depend>joy</exec_depend>
+
+  <test_depend>rostest</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export/>
+</package>

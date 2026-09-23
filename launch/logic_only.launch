@@ -1,0 +1,15 @@
+<launch>
+  <!-- Hardware/model-free graph for topic inspection and synthetic-message testing. -->
+  <arg name="config" default="$(find smartcar_autonomous_driving)/config/ros1.yaml"/>
+  <rosparam command="load" file="$(arg config)" ns="smartcar"/>
+
+  <group ns="smartcar">
+    <node pkg="smartcar_autonomous_driving" type="behavior_node.py" name="behavior" output="screen"/>
+    <node pkg="smartcar_autonomous_driving" type="command_mux_node.py" name="command_mux" output="screen">
+      <param name="default_mode" value="autonomous"/>
+    </node>
+    <node pkg="smartcar_autonomous_driving" type="vehicle_driver_node.py" name="vehicle_driver" output="screen">
+      <param name="dry_run" type="bool" value="true"/>
+    </node>
+  </group>
+</launch>

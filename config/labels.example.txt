@@ -1,0 +1,11 @@
+overtake
+stop_line
+speed_limit
+speed_limit_end
+left_turn
+cone_right
+cone_left
+cone_right_mid
+cone_left_mid
+zebra_crossing
+parking_stop

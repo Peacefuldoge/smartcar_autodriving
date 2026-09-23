@@ -1,0 +1,24 @@
+<launch>
+  <rosparam ns="smartcar">
+    vehicle:
+      neutral: 1500
+      cruise_speed: 1600
+      limited_speed: 1530
+      slow_speed: 1560
+      turn_speed: 1538
+      steering_min: 500
+      steering_max: 2450
+    behavior:
+      confirmation_frames:
+        speed_limit: 1
+        speed_limit_end: 1
+      cooldown_seconds: 0.0
+      left_bias: 12
+      left_bias_seconds: 2.0
+  </rosparam>
+
+  <group ns="smartcar">
+    <node pkg="smartcar_autonomous_driving" type="behavior_node.py" name="behavior" output="screen"/>
+    <test test-name="behavior_ros" pkg="smartcar_autonomous_driving" type="rostest_behavior.py" time-limit="20.0"/>
+  </group>
+</launch>
